@@ -21,7 +21,7 @@ public class Board {
     	board = currentBoard;
     	this.lastMove = lastMove;
     	
-    	value = calculateValue();
+//    	value = calculateValue();
     }
     
     public int calculateValue(){

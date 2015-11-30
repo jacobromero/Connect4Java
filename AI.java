@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 //TODO fix alpha beta pruning, not returning, i think i need to have it return a move to make rather than a board.
+//Look at 420 notes...
 public class AI {
 	private static long searchTime = 10000;
 	private static long maxSearchTime;
@@ -31,6 +32,7 @@ public class AI {
 		if(computer){
 			for(Board child : children){
 				tmp = alphaBeta(child, false, worstValue, bestValue, depth - 1);
+				tmp.value = tmp.calculateValue();
 				if(tmp.value > bestValue){
 					bestValue = tmp.value;
 				}
@@ -44,6 +46,7 @@ public class AI {
 		else{
 			for(Board child : children){
 				tmp = alphaBeta(child, true, worstValue, bestValue, depth - 1);
+				tmp.value = tmp.calculateValue();
 				if(tmp.value < worstValue){
 					bestValue = tmp.value;
 				}
