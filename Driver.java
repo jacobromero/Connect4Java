@@ -60,10 +60,13 @@ public class Driver {
 				col = Integer.parseInt(playerMove.substring(1)) - 1;
 			}
 			currentBoard.board[col][row] = player;
+			
+			System.out.println(currentBoard.calculateValue());
 			currentBoard = new Board(currentBoard.board, row + "" + col);
 			
-			currentBoard = AI.getMove(currentBoard);
-			System.out.println(currentBoard.lastMove);
+			String computerMove = AI.getMove(currentBoard);
+			
+//			System.out.println(computerMove);
 			
 			isFinished = currentBoard.finalState();	
 		}

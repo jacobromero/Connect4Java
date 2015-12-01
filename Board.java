@@ -82,6 +82,7 @@ public class Board {
     				tmp = col + 1;
     				while(tmp < 8 && board[col][tmp] == 'O'){
     					tmpvalue *= 10;
+    					tmp++;
     				}
     				value += tmpvalue;
     			}

@@ -6,7 +6,7 @@ public class AI {
 	private static long searchTime = 10000;
 	private static long maxSearchTime;
 	
-	public static Board getMove(Board currentBoard){
+	public static String getMove(Board currentBoard){
 		Board nextMove = null;
 		maxSearchTime = System.currentTimeMillis() + searchTime;
 		
@@ -14,7 +14,8 @@ public class AI {
 		while(System.currentTimeMillis() <= maxSearchTime)
 			nextMove = alphaBeta(currentBoard, true, Integer.MAX_VALUE, Integer.MIN_VALUE, depth++);
 		
-		return nextMove;
+		System.out.println("Returning move");
+		return nextMove.lastMove;
 	}
 	
 	public static void setSearchTime(int length){
@@ -22,8 +23,11 @@ public class AI {
 	}
 	
 	public static Board alphaBeta(Board currentBoard, boolean computer, int bestValue, int worstValue, int depth){
+		System.out.println("Searching...");
+		
+		//only return best board...
 		int finalState = currentBoard.finalState();
-		if(System.currentTimeMillis() > maxSearchTime || finalState == 1 || finalState == 2){
+		if(depth == 0 || System.currentTimeMillis() > maxSearchTime || finalState == 1 || finalState == 2){
 			return currentBoard;
 		}
 		
