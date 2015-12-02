@@ -6,8 +6,9 @@ import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 
-//TODO clean up player, computer move exchange
-//TODO maybe change the way a move is made, where I keep the same board, but reevaluate it every turn.
+//TODO implement iterative deepening search on alpha-beta pruning
+//TODO implement the time limit on alpha-beta pruning
+//TODO change/fix evaluation function on the board, in order to allow the program to not bum rush a win.
 public class Driver {
 	static Scanner kb = new Scanner(System.in);
 	public static void main(String[] args) {
