@@ -1,7 +1,8 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 
 //TODO nothing I think. this class maybe ok.
-public class Board {
+public class Board implements Comparator<Board>{
 	public char[][] board = new char[8][8];
     public int value;
     public String lastMove;
@@ -18,73 +19,88 @@ public class Board {
     }
     
     public Board(char[][] currentBoard, String lastMove){
-    	board = currentBoard;
+    	this.board = currentBoard;
     	this.lastMove = lastMove;
     	
 //    	value = calculateValue();
     }
     
+    //TODO fix evaluation function, once fixed we should be good, it evaluated higher for more X's in a row
+    //therefore it will attempt to bum rush a win
     public int calculateValue(){
     	int value = 0;
+    	
     	for(int row = 0; row < 8; row++){
     		for(int col = 0; col < 8; col++){
-    			if(board[col][row] == 'X'){
-    				//evaluate the column that has an X in it
-    				int tmpvalue = 1;
-    				int tmp = col - 1;
-    				while(tmp >= 0 && board[tmp][row] == 'X'){
-    					tmpvalue *= 10;
-    					tmp--;
-    				}
-    				tmp = col + 1;
-    				while(tmp < 8 && board[tmp][row] == 'X'){
-    					tmpvalue *= 10;
-    					tmp++;
-    				}
-    				value += tmpvalue;
+    			if(board[row][col] == 'X'){
+    				int colValue = 1;
     				
-    				//evaluate the row that has an X in it
-    				tmpvalue = 1;
-    				tmp = row - 1;
-    				while(tmp >= 0 && board[col][tmp] == 'X'){
-    					tmpvalue *= 10;
-    					tmp--;
+    				//look down the cols
+    				int tmpCol = col - 1;
+    				while(tmpCol >= 0 && board[row][tmpCol] == 'X'){
+    					colValue *= 10;
+    					tmpCol--;
     				}
-    				tmp = col + 1;
-    				while(tmp < 8 && board[col][tmp] == 'X'){
-    					tmpvalue *= 10;
-    					tmp++;
+    				//look up the cols
+    				tmpCol = col + 1;
+    				while(tmpCol < 8 && board[row][tmpCol] == 'X'){
+    					colValue *= 10;
+    					tmpCol++;
     				}
-    				value += tmpvalue;
+    				
+    				int rowValue = 1;
+    				//look backward in row
+    				int tmpRow = row - 1;
+    				while(tmpRow >= 0 && board[tmpRow][col] == 'X'){
+    					rowValue *= 10;
+    					tmpRow--;
+    				}
+    				//look forward in row
+    				tmpRow = row + 1;
+    				while(tmpRow < 8 && board[tmpRow][col] == 'X'){
+    					rowValue *= 10;
+    					tmpRow++;
+    				}
+    				
+    				//dont count the single x twice
+//    				if(rowValue == 1) rowValue = 0;
+    				
+    				value += colValue + rowValue;
     			}
-    			else if(board[col][row] == 'O'){
-    				//evaluate the column that has an X in it
-    				int tmpvalue = -1;
-    				int tmp = col - 1;
-    				while(tmp >= 0 && board[tmp][row] == 'O'){
-    					tmpvalue *= 10;
-    					tmp--;
-    				}
-    				tmp = col + 1;
-    				while(tmp < 8 && board[tmp][row] == 'O'){
-    					tmpvalue *= 10;
-    					tmp++;
-    				}
-    				value += tmpvalue;
+    			else if(board[row][col] == 'O'){
+    				int colValue = -1;
     				
-    				//evaluate the row that has an X in it
-    				tmpvalue = -1;
-    				tmp = row - 1;
-    				while(tmp >= 0 && board[col][tmp] == 'O'){
-    					tmpvalue *= 10;
-    					tmp--;
+    				//look down the cols
+    				int tmpCol = col - 1;
+    				while(tmpCol >= 0 && board[row][tmpCol] == 'O'){
+    					colValue *= 10;
+    					tmpCol--;
     				}
-    				tmp = col + 1;
-    				while(tmp < 8 && board[col][tmp] == 'O'){
-    					tmpvalue *= 10;
-    					tmp++;
+    				//look up the cols
+    				tmpCol = col + 1;
+    				while(tmpCol < 8 && board[row][tmpCol] == 'O'){
+    					colValue *= 10;
+    					tmpCol++;
     				}
-    				value += tmpvalue;
+    				
+    				int rowValue = -1;
+    				//look backward in row
+    				int tmpRow = row - 1;
+    				while(tmpRow >= 0 && board[tmpRow][col] == 'O'){
+    					rowValue *= 10;
+    					tmpRow--;
+    				}
+    				//look forward in row
+    				tmpRow = row + 1;
+    				while(tmpRow < 8 && board[tmpRow][col] == 'O'){
+    					rowValue *= 10;
+    					tmpRow++;
+    				}
+    				
+    				//dont count the single x twice
+    				if(rowValue == -1) rowValue = 0;
+    				
+    				value += colValue + rowValue;
     			}
     		}
     	}
@@ -144,6 +160,8 @@ public class Board {
 	}
 
 	public ArrayList<Board> findLegalMoves(boolean computer) {
+		
+        
 		ArrayList<Board> children = new ArrayList<Board>();
 		
 		char player = 'O';
@@ -151,15 +169,14 @@ public class Board {
 			player = 'X';
 		
 		for(int row = 0; row < 8; row++){
-			for(int col = 0; col < 8; col++){
+			for(int col = 0; col < 8; col++){  
 				char[][] copy = new char[8][8];
+				for (int i = 0; i < 8; i++) {
+		        	for (int j = 0; j < 8; j++) {
+		        		copy[i][j] = this.board[i][j];
+		        	}
+		        }
 				
-                for (int i = 0; i < 8; i++) {
-                	for (int j = 0; j < 8; j++) {
-                		copy[j][i] = board[j][i];
-                	}
-                }
-                
                 if(copy[row][col] == '_'){
                 	copy[row][col] = player;
                 	
@@ -169,6 +186,26 @@ public class Board {
                 }
 			}
 		}
+		
 		return children;
+	}
+
+	@Override
+	public int compare(Board board1, Board board2) {		
+		int b1Val = board1.calculateValue();
+		int b2Val = board2.calculateValue();
+		return Integer.compare(b1Val, b2Val);
+	}
+	
+	public String toString(){
+		String str = "";
+		for(int i = 0; i < 8; i++){
+			for(int j = 0; j < 8; j++){
+				str = str + board[i][j] + " ";
+			}
+			str = str + "\n";
+		}
+		
+		return str;
 	}
 }

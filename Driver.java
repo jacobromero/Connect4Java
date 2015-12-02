@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Random;
@@ -8,13 +11,34 @@ import java.util.Scanner;
 public class Driver {
 	static Scanner kb = new Scanner(System.in);
 	public static void main(String[] args) {
+		Board currentBoard = new Board();
+//		char[][] c = {{'X', '_', '_', '_', '_', '_', '_', '_'},
+//						{'_', '_', '_', '_', '_', '_', '_', '_'},
+//						{'_', 'O', 'O', 'O', 'O', '_', '_', '_'},
+//						{'_', '_', '_', '_', '_', '_', '_', '_'},
+//						{'_', '_', '_', '_', '_', '_', '_', '_'},
+//						{'_', '_', '_', '_', '_', '_', '_', '_'},
+//						{'_', '_', '_', '_', '_', '_', '_', '_'},
+//						{'_', '_', '_', '_', '_', '_', '_', '_'}};
+//		
+//		currentBoard.board = c;
+//		
+//		ArrayList<Board> b = currentBoard.findLegalMoves(true);
+//		
+//		for(Board ba : b){
+//			System.out.println(ba);
+//			ba.value = ba.calculateValue();
+//			System.out.println(ba.value);
+//		}
+		
+		
+//		System.out.println(currentBoard.calculateValue());
+		
 		HashMap<Character, Integer> rows = new HashMap<Character, Integer>();
 		initMap(rows);
-
+		
 		boolean moveFirst = whosFirst();
 		AI.setSearchTime(getThinkTime());
-		
-		Board currentBoard = new Board();
 		
 		char player;		
 		String playerMove;
@@ -28,7 +52,7 @@ public class Driver {
 			row = rows.get(playerMove.charAt(0));
 			col = Integer.parseInt(playerMove.substring(1)) - 1;
 			
-			currentBoard.board[col][row] = player;
+			currentBoard.board[row][col] = player;
 			currentBoard.value = currentBoard.calculateValue();
 			currentBoard.lastMove = row + "" + col;
 		}
@@ -36,11 +60,11 @@ public class Driver {
 		player = 'X';
 		Random rng = new Random();
 		do{
-			row = rng.nextInt(1) + 3;
-			col = rng.nextInt(1) + 3;
-		}while(currentBoard.board[col][row] != '_');
-		currentBoard.board[col][row] = player;
-		currentBoard.value = currentBoard.calculateValue();
+			row = rng.nextInt(2) + 3;
+			col = rng.nextInt(2) + 3;
+		}while(currentBoard.board[row][col] != '_');
+		currentBoard.board[row][col] = player;
+//		currentBoard.value = currentBoard.calculateValue();
 		
 		player = 'O';
 		
@@ -61,12 +85,7 @@ public class Driver {
 			}
 			currentBoard.board[col][row] = player;
 			
-			System.out.println(currentBoard.calculateValue());
-			currentBoard = new Board(currentBoard.board, row + "" + col);
-			
-			String computerMove = AI.getMove(currentBoard);
-			
-//			System.out.println(computerMove);
+			currentBoard = AI.getMove(currentBoard);
 			
 			isFinished = currentBoard.finalState();	
 		}
@@ -135,7 +154,7 @@ public class Driver {
 	}
 	
 	private static boolean isillegal(Board currentBoard, int col, int row){
-		if(currentBoard.board[col][row] != '_'){
+		if(currentBoard.board[row][col] != '_'){
 			System.out.println("Illegal move, that position is alread occupied.");
 			return true;
 		}
