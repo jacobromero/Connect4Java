@@ -52,7 +52,7 @@ public class Driver {
 			row = rows.get(playerMove.charAt(0));
 			col = Integer.parseInt(playerMove.substring(1)) - 1;
 			
-			currentBoard.board[row][col] = player;
+			currentBoard.board[col][row] = player;
 			currentBoard.value = currentBoard.calculateValue();
 			currentBoard.lastMove = row + "" + col;
 		}
@@ -85,16 +85,22 @@ public class Driver {
 			}
 			currentBoard.board[col][row] = player;
 			
-			currentBoard = AI.getMove(currentBoard);
-			
 			isFinished = currentBoard.finalState();	
+			
+			if(isFinished != 0){
+				break;
+			}
+			else{
+				currentBoard = AI.getMove(currentBoard);
+				isFinished = currentBoard.finalState();	
+			}
 		}
 		
 		currentBoard.printBoard();
 		if(isFinished == 1)
-			System.out.println("\n\nPlayer 1 wins!");
+			System.out.println("\n\nComputer wins!");
 		else if(isFinished == 2)
-			System.out.println("\n\nPlayer 2 wins!");
+			System.out.println("\n\nHuman wins!");
 		else
 			System.out.println("\n\nCats game.");
 		
