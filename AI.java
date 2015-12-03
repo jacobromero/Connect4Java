@@ -13,9 +13,13 @@ public class AI {
 		ArrayList<Board> successors = currentBoard.findLegalMoves(true);
 		
 		int depth = 0;
-		for(Board child : successors){
-			child.value = min(child, Integer.MIN_VALUE, Integer.MAX_VALUE, depth++);
+		while(System.currentTimeMillis() > maxSearchTime){
+			for(Board child : successors){
+				child.value = min(child, Integer.MIN_VALUE, Integer.MAX_VALUE, depth++);
+			}
 		}
+		
+		
 		
 		Board bestMove = Collections.max(successors, new Board());
 		
@@ -82,14 +86,19 @@ public class AI {
 		ArrayList<Board> children = currentBoard.findLegalMoves(computer);
 		if(computer){
 			for(Board child : children){
-				tmp = alphaBeta(child, false, worstValue, bestValue, depth - 1);
-				tmp.value = tmp.calculateValue();
-				if(tmp.value > bestValue){
-					bestValue = tmp.value;
+				if(System.currentTimeMillis() < maxSearchTime){
+					tmp = alphaBeta(child, false, worstValue, bestValue, depth - 1);
+					tmp.value = tmp.calculateValue();
+					if(tmp.value > bestValue){
+						bestValue = tmp.value;
+					}
+					else if (bestValue >= worstValue) {
+	                    break;
+	                }
 				}
-				else if (bestValue >= worstValue) {
-                    break;
-                }
+				else{
+					break;
+				}
 			}
 			
 			return tmp;
