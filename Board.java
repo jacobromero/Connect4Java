@@ -1,12 +1,14 @@
 import java.util.ArrayList;
 import java.util.Comparator;
 
-//TODO nothing I think. this class maybe ok.
 public class Board implements Comparator<Board>{
 	public char[][] board = new char[8][8];
     public int value;
+    
+    //store last move, mainly for print computer's last move
     public String lastMove;
     
+    //initalize board to _ character = open space
     public Board(){
     	for(int i = 0; i < 8; i++){
     		for(int j = 0; j < 8; j++){
@@ -18,20 +20,20 @@ public class Board implements Comparator<Board>{
     	lastMove = null;
     }
     
+    //can create new boards with a 2d array, and the move used to create that board
     public Board(char[][] currentBoard, String lastMove){
     	this.board = currentBoard;
     	this.lastMove = lastMove;
-    	
-//    	value = calculateValue();
     }
     
-    //TODO fix evaluation function, once fixed we should be good, it evaluated higher for more X's in a row
-    //therefore it will attempt to bum rush a win
+    //evaluation function of a board (see report on rationale/explanation of function)
     public int calculateValue(){
     	int value = 0;
     	
+    	//go through board looking for special tokens
     	for(int row = 0; row < 8; row++){
     		for(int col = 0; col < 8; col++){
+    			//we see X, so find all/if any other X's are connected to it
     			if(board[row][col] == 'X'){
     				int colValue = 1;
     				
@@ -63,12 +65,14 @@ public class Board implements Comparator<Board>{
     				}
     				
     				//dont count the single x twice
-//    				if(rowValue == 1) rowValue = 0;
+    				if(rowValue == 1) rowValue = 0;
     				
+    				//add value of rows and columns
     				value += colValue + rowValue;
     			}
+    			//same but for Human player
     			else if(board[row][col] == 'O'){
-    				int colValue = -1;
+    				int colValue = -2;
     				
     				//look down the cols
     				int tmpCol = col - 1;
@@ -97,7 +101,7 @@ public class Board implements Comparator<Board>{
     					tmpRow++;
     				}
     				
-    				//dont count the single x twice
+    				//dont count the single o twice
     				if(rowValue == -1) rowValue = 0;
     				
     				value += colValue + rowValue;
@@ -108,68 +112,106 @@ public class Board implements Comparator<Board>{
     	return value;
     }
     
+    //check if the board is a win/loss board
     public int finalState(){
+    	//special case, if the board is full, only need to look for 1 space that is open
+    	int openSpaces = 0;
+    	
     	//1 is for the computer winning, 2 is for the player winning, 0 is for no current winner, 3 for tie game
-        //horizontal cases
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 5; j++) {
-                if (board[i][j] == 'X' && board[i][j + 1] == 'X' && board[i][j + 2] == 'X' && board[i][j + 3] == 'X') {
-                    return 1;
-                } else if (board[i][j] == 'O' && board[i][j + 1] == 'O' && board[i][j + 2] == 'O' && board[i][j + 3] == 'O') {
-                    return 2;
-                }
+    	for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 5; col++) {
+            	int counter = 0;
+            	//check computer 4 in a row
+            	if(board[row][col] == 'X'){
+	            	int tmpMover = col + 1;
+	            	counter = 1;
+	            	
+	            	//check horizontal movement boxes for a connection of 4
+	            	while(tmpMover < 8 && board[row][tmpMover++] == 'X'){
+						counter++;
+						
+						if(counter == 4)
+							return 1;
+					}
+	            	
+	            	tmpMover = row + 1;
+	            	counter = 1;
+	            	
+	            	//check vertical movements for connection of 4
+	            	while(tmpMover < 8 && board[tmpMover++][col] == 'X'){
+						counter++;
+						
+						if(counter == 4)
+							return 1;
+					}
+            	}
+            	//check for human player 4 in a row
+            	else if(board[row][col] == 'O'){
+            		int tmpMover = col + 1;
+	            	counter = 1;
+	            	
+	            	//check horizontal movement boxes for a connection of 4
+	            	while(tmpMover < 8 && board[row][tmpMover++] == 'O'){
+						counter++;
+						
+						if(counter == 4)
+							return 2;
+					}
+	            	
+	            	tmpMover = row + 1;
+	            	counter = 1;
+	            	
+	            	//check vertical movements for connection of 4
+	            	while(tmpMover < 8 && board[tmpMover++][col] == 'O'){
+						counter++;
+						
+						if(counter == 4)
+							return 2;
+					}
+            	}
+            	//space is open if it isn't an X or O
+            	else{
+            		openSpaces++;
+            	}
             }
-        }
-
-        //vertical cases
-        for (int j = 0; j < 8; j++) {
-            for (int i = 0; i < 5; i++) {
-                if (board[i][j] == 'X' && board[i + 1][j] == 'X' && board[i + 2][j] == 'X' && board[i + 3][j] == 'X') {
-                    return 1;
-                } else if (board[i][j] == 'O' && board[i + 1][j] == 'O' && board[i + 2][j] == 'O' && board[i + 3][j] == 'O') {
-                    return 2;
-                }
-            }
-        }
-
-        //number of tiles marked
-        int count = 0;
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {
-                if(board[i][j] != '_') {
-                    count++;
-                }
-            }
-        }
-
-        //all tiles marked here means draw, otherwise game isn't done yet
-        return (count == 64) ? 3 : 0;
+    	}
+    	
+    	//no open spaces = cat's game
+    	if(openSpaces == 0){
+    		return 3;
+    	}
+    	
+    	//board is still playable
+    	return 0;
     }
-
+    
+    //print board, with row/col numbers.
 	public void printBoard() {
 		char rowChar = 'A';
 		System.out.println("\n  1 2 3 4 5 6 7 8");
 		for(int row = 0; row < 8; row++){
 			System.out.print(rowChar++ + " ");
 			for(int col = 0; col < 8; col++){
-				System.out.print(board[col][row] + " ");
+				System.out.print(board[row][col] + " ");
 			}
 			System.out.println();
 		}
 		
 	}
 
-	public ArrayList<Board> findLegalMoves(boolean computer) {
-		
-        
+	//return all legal moves for the current board, indicating whether the computer is player, or human
+	public ArrayList<Board> findLegalMoves(boolean computer) { 
 		ArrayList<Board> children = new ArrayList<Board>();
 		
 		char player = 'O';
 		if(computer)
 			player = 'X';
 		
+		//go through board, and make every possible move
 		for(int row = 0; row < 8; row++){
 			for(int col = 0; col < 8; col++){  
+				
+				//copy current board, as to not mess it up
 				char[][] copy = new char[8][8];
 				for (int i = 0; i < 8; i++) {
 		        	for (int j = 0; j < 8; j++) {
@@ -180,23 +222,27 @@ public class Board implements Comparator<Board>{
                 if(copy[row][col] == '_'){
                 	copy[row][col] = player;
                 	
-                	String move = row + "" + col;
+                	String move =  row + "" + col;
                 	
+                	//add new calculated move to list of all other moves
                 	children.add(new Board(copy, move));
                 }
 			}
 		}
 		
+		//return all possible moves
 		return children;
 	}
 
 	@Override
+	//implemented method to use collections.max/min
 	public int compare(Board board1, Board board2) {		
 		int b1Val = board1.calculateValue();
 		int b2Val = board2.calculateValue();
 		return Integer.compare(b1Val, b2Val);
 	}
 	
+	//string representation of the board.
 	public String toString(){
 		String str = "";
 		for(int i = 0; i < 8; i++){
