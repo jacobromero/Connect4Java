@@ -4,12 +4,26 @@ import java.util.Comparator;
 public class Board implements Comparator<Board>{
 	public char[][] board = new char[8][8];
     public int value;
+    public static boolean humanFirst = false;
     
     //store last move, mainly for print computer's last move
     public String lastMove;
     
     //initalize board to _ character = open space
     public Board(){
+    	for(int i = 0; i < 8; i++){
+    		for(int j = 0; j < 8; j++){
+    			board[i][j] = '_';
+    		}
+    	}
+    	
+    	value = 0;
+    	lastMove = null;
+    }
+    
+    public Board(boolean first){
+    	humanFirst = !first;
+    	
     	for(int i = 0; i < 8; i++){
     		for(int j = 0; j < 8; j++){
     			board[i][j] = '_';
@@ -72,7 +86,7 @@ public class Board implements Comparator<Board>{
     			}
     			//same but for Human player
     			else if(board[row][col] == 'O'){
-    				int colValue = -2;
+    				int colValue = -1;
     				
     				//look down the cols
     				int tmpCol = col - 1;
@@ -80,12 +94,19 @@ public class Board implements Comparator<Board>{
     					colValue *= 10;
     					tmpCol--;
     				}
+    				
+    				if(humanFirst && tmpCol >= 0 && board[row][tmpCol] == 'X')
+    					value += 25;
+    				
     				//look up the cols
     				tmpCol = col + 1;
     				while(tmpCol < 8 && board[row][tmpCol] == 'O'){
     					colValue *= 10;
     					tmpCol++;
     				}
+    				
+    				if(humanFirst && tmpCol < 8 && board[row][tmpCol] == 'X')
+    					value += 25;
     				
     				int rowValue = -1;
     				//look backward in row
@@ -94,6 +115,10 @@ public class Board implements Comparator<Board>{
     					rowValue *= 10;
     					tmpRow--;
     				}
+    				
+    				if(humanFirst && tmpRow >= 0 && board[tmpRow][col] == 'X')
+    					value += 25;
+    				
     				//look forward in row
     				tmpRow = row + 1;
     				while(tmpRow < 8 && board[tmpRow][col] == 'O'){
@@ -103,6 +128,9 @@ public class Board implements Comparator<Board>{
     				
     				//dont count the single o twice
     				if(rowValue == -1) rowValue = 0;
+    				
+    				if(humanFirst && tmpRow < 8 && board[tmpRow][col] == 'X')
+    					value += 25;
     				
     				value += colValue + rowValue;
     			}

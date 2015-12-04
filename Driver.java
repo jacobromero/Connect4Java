@@ -10,8 +10,6 @@ public class Driver {
 	static Scanner kb = new Scanner(System.in);
 	
 	public static void main(String[] args) {
-		//create new board instance
-		Board currentBoard = new Board();
 		//initialize hashmap for indexing rows by a character
 		HashMap<Character, Integer> rows = new HashMap<Character, Integer>();
 		initMap(rows);
@@ -20,6 +18,9 @@ public class Driver {
 		boolean moveFirst = whosFirst();
 		//and set search time for computer
 		AI.setSearchTime(getThinkTime());
+		
+		//create new board instance
+		Board currentBoard = new Board(moveFirst);
 		
 		String playerMove;
 		int row, col;
@@ -37,8 +38,6 @@ public class Driver {
 			
 			//put move in board
 			currentBoard.board[row][col] = 'O';
-
-			currentBoard.lastMove = row + "" + col;
 		}
 		
 		//for the first move I want my program to select one of the unoccupied middle squares since it has most options for connect 4
@@ -49,12 +48,14 @@ public class Driver {
 		}while(currentBoard.board[row][col] != '_');
 		currentBoard.board[row][col] = 'X';
 		char rowMove = (char) ('A' + row);
-		System.out.println("Computer plays: " + rowMove + "" + (col + 1));
+
+		currentBoard.lastMove = "" + rowMove + (col + 1);
 		
 		//continue game until someone wins, or tiles run out.
 		int isFinished = 0;
 		while(isFinished == 0){	
 			currentBoard.printBoard();
+			System.out.println("Computer plays: " + currentBoard.lastMove);
 			
 			//same logic, get player move insert into board
 			playerMove = getUserMove();
@@ -86,8 +87,7 @@ public class Driver {
 				//transform integer of a row, back to a character
 				rowMove = (char) ('A' + Character.getNumericValue(currentBoard.lastMove.charAt(0)));
 				
-				//print computer played move
-				System.out.println("Computer plays: " + rowMove + currentBoard.lastMove.charAt(1));
+				currentBoard.lastMove = "" + rowMove + (Character.getNumericValue(currentBoard.lastMove.charAt(1)) + 1);
 				
 				//check if that move wins the game
 				isFinished = currentBoard.finalState();	
@@ -97,8 +97,10 @@ public class Driver {
 		//game is finished so print out last board and do something based on who won
 		currentBoard.printBoard();
 		//computer won
-		if(isFinished == 1)
+		if(isFinished == 1){
+			System.out.println("Computer plays: " + currentBoard.lastMove);
 			System.out.println("\n\nComputer wins!");
+		}
 		//human won
 		else if(isFinished == 2)
 			System.out.println("\n\nHuman wins!");
